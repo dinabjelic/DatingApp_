@@ -24,32 +24,8 @@ namespace DatingApp.API.Controllers
             _context = context;
         }
         
-        //[HttpPost("register")]
-        //public async Task<ActionResult<AppUser>> Register(RegisterDTO register)
-        //{
-        //    if (await UserExists(register.UserName))
-        //    {
-        //        return BadRequest("UserName is taken");
-        //    }
-               
-        //    using var hmac = new HMACSHA512();
-
-        //    var user = new AppUser
-        //    {
-        //        UserName = register.UserName.ToLower(),
-        //        PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(register.Password)).ToString(),
-        //        PasswordSalt = hmac.Key.ToString()
-
-        //    };
-
-        //    _context.Users.Add(user);
-        //    await _context.SaveChangesAsync();
-
-        //    return user; 
-        //}
-
-
-        ///TOKEENNNNNNNNNNNNNNNNNNNNNNN
+       
+       
         [HttpPost("register")]
         public async Task<ActionResult<UserDto>> Register(RegisterDTO register)
         {
@@ -86,7 +62,7 @@ namespace DatingApp.API.Controllers
         public async Task<ActionResult<UserDto>> Login([FromBody]LoginDTO loginDto)
         {
 
-            var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == loginDto.UserName);
+             var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == loginDto.UserName);
 
 
             if (user == null)
