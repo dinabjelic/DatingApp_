@@ -53,13 +53,15 @@ namespace DatingApp.API.Controllers
                 Token = _tokenService.CreateToken(user)
             };
 
+            
+
         }
 
 
         
 
         [HttpPost("login")]
-        public async Task<ActionResult<UserDto>> Login([FromBody]LoginDTO loginDto)
+        public async Task<ActionResult<UserDto>> Login(LoginDTO loginDto)
         {
 
              var user = await _context.Users.SingleOrDefaultAsync(x => x.UserName == loginDto.UserName);
