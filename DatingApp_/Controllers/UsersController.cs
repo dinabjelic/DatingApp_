@@ -6,11 +6,14 @@ using DatingApp_.API.DTOs;
 using DatingApp_.API.Interfaces;
 using DatingApp_.API.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace DatingApp.Controllers
@@ -51,6 +54,7 @@ namespace DatingApp.Controllers
         {
             _repository = repository;
             _mapper = mapper;
+
         }
 
 
@@ -101,13 +105,28 @@ namespace DatingApp.Controllers
         }
 
 
+        [HttpPut]
+        public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdate)
+        {
+            //var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            //var username = User.FindFirst(JwtRegisteredClaimNames.NameId)?.Value;
 
 
+            //var username = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            //var username = User.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.NameId)?.Value;
 
+            //var username = "bob";
+            var username = memberUpdate.Username;
+            var user = await _repository.GetUserByUsernameAsync(username);
 
+            _mapper.Map(memberUpdate, user);
 
+            _repository.Update(user);
 
+            if (await _repository.SaveAllAsync()) return NoContent();
 
+            return BadRequest("Failed to update user");
+        }
 
 
     }

@@ -18,7 +18,7 @@ currentUser$=this.currentUserSource.asObservable();
   login(model: any)
   {
      return this.http.post(this.baseUrl + '/account/login', model).pipe(
-       map((response: any) =>{     //ovdje treba bit User
+       map((response: User) =>{     //ovdje treba bit User
          const user= response;
          if(user) {
            localStorage.setItem('user', JSON.stringify(user));
@@ -31,7 +31,7 @@ currentUser$=this.currentUserSource.asObservable();
   register(model:any)
   {
     return this.http.post(this.baseUrl + '/account/register', model).pipe(
-      map((user:any)=>{  //ovdje kad se stavi User ne radi
+      map((user:User)=>{  //ovdje kad se stavi User ne radi
         if(user){
           localStorage.setItem('user',JSON.stringify(user));
           this.currentUserSource.next(user);
@@ -46,6 +46,6 @@ this.currentUserSource.next(user);
   }
   logout(){
     localStorage.removeItem('user');
-    // this.currentUserSource.next(null);   //prva greska
+    this.currentUserSource.next(null);   //prva greska
   }
 }

@@ -3,11 +3,11 @@ import { Injectable } from '@angular/core';
 import { Member } from '../_models/members';
 
 
-const httpOptions= {
-  headers:new HttpHeaders({
-    // Authorization: 'Bearer' + JSON.parse(localStorage.getItem('user')).token //ovo sam zakomentarisala kad sam radila 9.sekciju
-  })
-}
+// const httpOptions= {
+//   headers:new HttpHeaders({
+//     Authorization: 'Bearer' + JSON.parse(localStorage.getItem('user')).token //ovo sam zakomentarisala kad sam radila 9.sekciju
+//   })
+// }
 
 @Injectable({
   providedIn: 'root'
@@ -18,14 +18,27 @@ export class MembersService {
 
   constructor(private http:HttpClient) { }
 
+  // getMembers(){
+  //   return this.http.get<Member[]>(this.baseUrl + 'users', httpOptions);
+
+  // } //PRIJE NEGO STO SMO IZBRRISALI HEADER
+  // getMember(username:string){
+  //   return this.http.get<Member>(this.baseUrl+'users/'+username, httpOptions);
+  //     } //PRIJE NEGO STO SMO IZBRRISALI HEADER
+
   getMembers(){
-    return this.http.get<Member[]>(this.baseUrl + 'users', httpOptions);
+    return this.http.get<Member[]>(this.baseUrl + 'users');
 
   }
 
 
   getMember(username:string){
-return this.http.get<Member>(this.baseUrl+'users/'+username, httpOptions);
+return this.http.get<Member>(this.baseUrl+'users/'+username);
+  }
+
+  updateMember(member:Member)
+  {
+    return this.http.put(this.baseUrl + 'users', member);
   }
 
 }
