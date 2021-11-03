@@ -8,6 +8,7 @@ using DatingApp_.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient.Server;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace DatingApp.Controllers
 {
-   
+
     public class UsersController : BaseApiController
     {
 
@@ -50,8 +51,11 @@ namespace DatingApp.Controllers
 
         private readonly IUserRepository _repository;
         private readonly IMapper _mapper;
-        public UsersController(IUserRepository repository, IMapper mapper)
+        private readonly IPhotoService _photoService;
+
+        public UsersController(IUserRepository repository, IMapper mapper, IPhotoService photoService)
         {
+            _photoService = photoService;
             _repository = repository;
             _mapper = mapper;
 
@@ -89,7 +93,7 @@ namespace DatingApp.Controllers
         public async Task<ActionResult<MemberDto>> GetUser(string username)
         {
 
-           return await _repository.GetMemberAsync(username);  //i ovdje direktno vracamo iz repozitorija, ne moramo mapirat nista
+            return await _repository.GetMemberAsync(username);  //i ovdje direktno vracamo iz repozitorija, ne moramo mapirat nista
 
         }
 
@@ -108,15 +112,25 @@ namespace DatingApp.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateUser(MemberUpdateDto memberUpdate)
         {
-            //var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            //var username = User.FindFirst(JwtRegisteredClaimNames.NameId)?.Value;
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            //var username = User.FindFirst("NameId")?.Value;
 
 
             //var username = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-            //var username = User.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.NameId)?.Value;
+            //var username = User.Claims.FirstOrDefault(x => x.Type == "nameid")?.Value;
 
             //var username = "bob";
-            var username = memberUpdate.Username;
+
+            //var claimsIdentity = User.Identity as ClaimsIdentity;
+            //var username= claimsIdentity.FindFirst("nameid");
+
+            //foreach (var claim in claimsIdentity.Claims)
+            //{
+            //    System.Console.WriteLine(claim.Type + ":" + claim.Value);
+            //}
+
+
+            //var username = memberUpdate.Username;
             var user = await _repository.GetUserByUsernameAsync(username);
 
             _mapper.Map(memberUpdate, user);
@@ -127,6 +141,55 @@ namespace DatingApp.Controllers
 
             return BadRequest("Failed to update user");
         }
+
+        [HttpPost("{add-photo}")]
+        public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
+        {
+            var username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value; //nadjemo username
+
+            //nadjemo usera sa tim usernameom i u toj metodi koju smo pozvali se ukljucuje i slika 
+
+            //var username = "bob";
+
+            var user = await _repository.GetUserByUsernameAsync(username);  
+
+            //sljedece moramo u konstruktoru dodati IPhotoService
+
+            var result = await _photoService.AddPhotoAsync(file); //kdodaje/uzima se slika  
+
+            if(result.Error != null)
+            {
+                return BadRequest(result.Error.Message); //ima gresku, greska nije null
+            }
+
+            //ako nema greske moze se kreirati nova slika 
+            var photo = new Photo
+            {
+                Url = result.SecureUrl.AbsoluteUri,
+                PublicId = result.PublicId
+            };
+
+            //nakon toga cemo provjeriri da li taj user ima ikakvih slika 
+            if(user.Photos.Count==0)
+            {
+                photo.IsMain = true; //ako nema slika onda ce ta prva slika bit Main
+            }
+
+            //nakon toga cemo useru dodat tu sliku
+
+            user.Photos.Add(photo);
+
+            //nakon toga sacuvamo promjene
+            if(await _repository.SaveAllAsync())
+            {
+                return _mapper.Map<PhotoDto>(photo);
+            }
+
+            return BadRequest("Problem adding photo");
+
+        }
+
+
 
 
     }
