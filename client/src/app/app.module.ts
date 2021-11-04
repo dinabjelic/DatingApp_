@@ -20,6 +20,8 @@ import { JwtInterceptor } from './_interceptors/jwt.interceptor';
 import {TabsModule} from 'ngx-bootstrap/tabs';
 import  {NgxGalleryModule} from '@kolkov/ngx-gallery';
 import { MemberEditComponent } from './members/member-edit/member-edit.component';
+import { PhotoEditorComponent } from './members/photo-editor/photo-editor.component';
+import { FileUploadModule } from 'ng2-file-upload';
 
 @NgModule({
   declarations: [
@@ -32,7 +34,8 @@ import { MemberEditComponent } from './members/member-edit/member-edit.component
     MessagesComponent,
     MemberDetailComponent,
     MemberCardComponent,
-    MemberEditComponent
+    MemberEditComponent,
+    PhotoEditorComponent
   ],
   imports: [
     BrowserModule,
@@ -45,7 +48,8 @@ import { MemberEditComponent } from './members/member-edit/member-edit.component
       positionClass: 'toast-bottom-right'
     }), 
     TabsModule.forRoot(),
-    NgxGalleryModule
+    NgxGalleryModule,
+    FileUploadModule
 
 
   ],
