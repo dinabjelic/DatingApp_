@@ -3,6 +3,7 @@ using AutoMapper.QueryableExtensions;
 using DatingApp.Data;
 using DatingApp.Entities;
 using DatingApp_.API.DTOs;
+using DatingApp_.API.Helpers;
 using DatingApp_.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -33,6 +34,17 @@ namespace DatingApp_.API.Services
 
         public async Task<IEnumerable<MemberDto>> GetMembersAsync()
         {
+            //ovo je za sortiranje
+            ////IQueriable ode do DBa, napravit ce query kao expresion tree i onda on pravi requeste na DB kad se radi o 
+            ////asinhronim pozivima 
+            //var query = _context.Users.AsQueryable(); 
+
+            //query = userParams.OrderBy switch
+            //{
+            //    "created" => query.OrderByDescending(u => u.Created),
+            //    _ => query.OrderByDescending(u => u.LastActive)
+            //};
+
             return await _context.Users
                 .ProjectTo<MemberDto>(_mapper.ConfigurationProvider)
                 .ToListAsync();

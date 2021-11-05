@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using DatingApp.API.DTOs;
 using DatingApp.Entities;
 using DatingApp_.API.DTOs;
 using DatingApp_.API.Extensions;
@@ -20,6 +21,8 @@ namespace DatingApp_.API.Helpers
 
             CreateMap<Photo, PhotoDto>();
             CreateMap<MemberUpdateDto, AppUser>();
+            CreateMap<RegisterDTO, AppUser>();
+
 
         }
 

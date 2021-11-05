@@ -2,6 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FileUploader } from 'ng2-file-upload';
 import { take } from 'rxjs/operators';
 import { Member } from 'src/app/_models/members';
+import { Photo } from 'src/app/_models/photo';
 import { User } from 'src/app/_models/user';
 import { AccountService } from 'src/app/_services/account.service';
 import { MembersService } from 'src/app/_services/members.service';
@@ -67,9 +68,14 @@ export class PhotoEditorComponent implements OnInit {
       //sta cemo uraditi kad je file uploaded.Nakon sto je konfiguracija setovana  i 4.dio pisanja
       this.uploader.onSuccessItem=(item, response,status,headers)=>{
         if(response){
-          const photo= JSON.parse(response);
+          const photo:Photo= JSON.parse(response);
           this.member.photos.push(photo); //dodat cemo sliku u array
-
+      
+          //nakon sto smo uploadali sliku moramo je refreshat odmah 
+          if(photo.isMain){
+            this.member.photoUrl= photo.url, 
+            this.accountService.setCurrentUser(this.user)
+          }
         }
       }
 

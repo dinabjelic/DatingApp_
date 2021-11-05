@@ -1,4 +1,5 @@
-﻿using DatingApp.API.DTOs;
+﻿using AutoMapper;
+using DatingApp.API.DTOs;
 using DatingApp.Data;
 using DatingApp.Entities;
 using DatingApp_.API.DTOs;
@@ -18,10 +19,12 @@ namespace DatingApp.API.Controllers
     {
         private readonly DataContext _context;
         private readonly ITokenService _tokenService;
-        public AccountController(DataContext context, ITokenService tokenService)
+        private readonly IMapper _mapper;
+        public AccountController(DataContext context, ITokenService tokenService, IMapper mapper)
         {
             _tokenService = tokenService;
             _context = context;
+            _mapper = mapper;
         }
         
        
@@ -34,15 +37,17 @@ namespace DatingApp.API.Controllers
                 return BadRequest("UserName is taken");
             }
 
+            //ovdje cemo ic da uzmemo podatke iz register i stavimo ih u appUser
+            var user = _mapper.Map<AppUser>(register);
+
             using var hmac = new HMACSHA512();
 
-            var user = new AppUser
-            {
-                UserName = register.UserName.ToLower(),
-                PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(register.Password)),
-                PasswordSalt = hmac.Key
+            //i na tog kreiranog usera cemo nadododat ovo enkodiranje
+            user.UserName = register.UserName.ToLower();
+            user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(register.Password));
+            user.PasswordSalt = hmac.Key;
 
-            };
+            
 
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
@@ -50,11 +55,10 @@ namespace DatingApp.API.Controllers
             return new UserDto
             {
                 Username = user.UserName,
-                Token = _tokenService.CreateToken(user)
+                Token = _tokenService.CreateToken(user),
+                KnownAs =user.KnownAs
+                
             };
-
-            
-
         }
 
 
@@ -84,7 +88,9 @@ namespace DatingApp.API.Controllers
             return new UserDto
             {
                 Username = user.UserName,
-                Token = _tokenService.CreateToken(user)
+                Token = _tokenService.CreateToken(user),
+                KnownAs = user.KnownAs
+
             };
 
 
